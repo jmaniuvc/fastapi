@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kf-api-svc
+spec:
+  selector:
+    app: kf-api
+  ports:
+    - protocol: "TCP"
+      port: 90
+      targetPort: 90
+  type: LoadBalancer
+
+---
+# kf-api Deployment
+# Defines the deployment of the app running in a pod on any worker node
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kf-api
+  labels:
+    app: kf-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kf-api
+  template:
+    metadata:
+      labels:
+        app: kf-api
+    spec:
+      containers:
+        - name: kf-api
+          image: ljmuvc/webserver:fastapi
+          ports:
+            - containerPort: 90
+          imagePullPolicy: Always
+          resources:
+            # You must specify requests for CPU to autoscale
+            # based on CPU utilization
+            requests:
+              cpu: "250m"
